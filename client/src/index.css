@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #030712; /* zinc-950 / slate-950 */
+    color: #f3f4f6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom soundwave pulse animation */
+@keyframes vapor-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.3;
+  }
+}
+
+.animate-vapor-pulse {
+  animation: vapor-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes wave-bar {
+  0%, 100% {
+    height: 6px;
+  }
+  50% {
+    height: 32px;
+  }
+}
+
+.animate-wave-bar {
+  animation: wave-bar 0.9s ease-in-out infinite;
+}

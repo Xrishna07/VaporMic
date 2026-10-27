@@ -1,0 +1,17 @@
+{
+  "name": "vapormic",
+  "version": "1.0.0",
+  "description": "VaporMic - Production-ready ephemeral voice note web application",
+  "scripts": {
+    "dev": "concurrently -n \"server,client\" -c \"cyan,magenta\" \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix server",
+    "server:start": "npm start --prefix server",
+    "client": "npm run dev --prefix client",
+    "client:build": "npm run build --prefix client",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+

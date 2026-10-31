@@ -5,6 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 import noteRoutes from './routes/noteRoutes.js';
+import fs from 'fs/promises';
+
 
 dotenv.config();
 
@@ -20,7 +22,7 @@ connectDB();
 
 // CORS configuration
 const allowedOrigins = [
-  CLIENT_URL,
+  process.env.CLIENT_URL,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000'
@@ -33,7 +35,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive in dev to avoid blocking
+        callback(new Error('Blocked by CORS policy'));
       }
     },
     credentials: true,
@@ -46,7 +48,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploads statically only if ever needed for debugging (optional, streaming endpoint is primary)
-app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')));
 
 // API Routes
 app.use('/api', noteRoutes);
@@ -74,6 +76,35 @@ app.use((err, req, res, next) => {
     error: err.message || 'Internal Server Error'
   });
 });
+
+// Background cleanup for expired audio files
+const cleanupOrphanFiles = async () => {
+  const uploadsDir = path.resolve(__dirname, 'uploads');
+  const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+  const now = Date.now();
+
+  try {
+    const files = await fs.readdir(uploadsDir, { withFileTypes: true });
+
+    for (const file of files) {
+      if (file.name === '.gitkeep' || !file.isFile()) continue;
+
+      const filePath = path.join(uploadsDir, file.name);
+      const stats = await fs.stat(filePath);
+
+      if (now - stats.mtimeMs > maxAge) {
+        await fs.unlink(filePath);
+        console.log(`[Cleanup] Deleted expired audio: ${file.name}`);
+      }
+    }
+  } catch (error) {
+    console.error('[Cleanup] Error:', error.message);
+  }
+};
+
+// Run on startup and every hour
+cleanupOrphanFiles();
+setInterval(cleanupOrphanFiles, 60 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(`[VaporMic Server] Running on http://localhost:${PORT}`);

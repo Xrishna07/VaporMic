@@ -6,7 +6,7 @@ import {
   Pause,
   RotateCcw,
   Send,
-  Copy,
+  Copy, 
   Check,
   Flame,
   Volume2,
@@ -16,6 +16,8 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function Home() {
   // State: 'idle' | 'recording' | 'preview' | 'uploading' | 'created'
@@ -256,7 +258,7 @@ export default function Home() {
       formData.append('audio', audioBlob, 'voicenote.webm');
       formData.append('duration', duration || recordingTime);
 
-      const response = await fetch('/api/notes', {
+      const response = await fetch(`${API_BASE}/api/notes`, {
         method: 'POST',
         body: formData
       });

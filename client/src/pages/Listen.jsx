@@ -6,13 +6,15 @@ import {
   Flame,
   AlertTriangle,
   Clock,
-  Mic,
+  Mic, 
   ShieldAlert,
   Trash2,
   Volume2,
   Loader2,
   Sparkles
 } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function Listen() {
   const { id } = useParams();
@@ -42,7 +44,7 @@ export default function Listen() {
 
     const verifyNote = async () => {
       try {
-        const response = await fetch(`/api/notes/${id}`);
+        const response = await fetch(`${API_BASE}/api/notes/${id}`);
         const data = await response.json();
 
         if (!isMounted) return;
@@ -80,7 +82,7 @@ export default function Listen() {
   const destroyNote = async () => {
     try {
       setIsBurning(true);
-      await fetch(`/api/notes/${id}/destroy`, {
+      await fetch(`${API_BASE}/api/notes/${id}/destroy`, {
         method: 'POST'
       });
     } catch (err) {
@@ -211,7 +213,7 @@ export default function Listen() {
           {/* Audio Element streaming from backend */}
           <audio
             ref={audioRef}
-            src={`/api/notes/${id}/stream`}
+            src={`${API_BASE}/api/notes/${id}/stream`}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={handleAudioEnded}
